@@ -1,10 +1,29 @@
 import tkinter as tk
 
 
-class SystemTabs(tk.Canvas):
-    # общий полупрозрачный овал-«таблетка» с выбором системы
+def round_rect(canvas, x1, y1, x2, y2, r, **kwargs):
+    # прямоугольник с закруглёнными углами через polygon со smooth
+    points = [
+        x1 + r, y1,
+        x2 - r, y1,
+        x2, y1,
+        x2, y1 + r,
+        x2, y2 - r,
+        x2, y2,
+        x2 - r, y2,
+        x1 + r, y2,
+        x1, y2,
+        x1, y2 - r,
+        x1, y1 + r,
+        x1, y1,
+    ]
+    return canvas.create_polygon(points, smooth=True, **kwargs)
 
-    def __init__(self, master, on_select, bg="#ffffff",
+
+class SystemTabs(tk.Canvas):
+    # прямоугольная «плашка» с закруглёнными углами и выбором системы
+
+    def __init__(self, master, on_select, bg="#f1ccd7",
                  width=520, height=52, **kwargs):
         super().__init__(master, width=width, height=height,
                          highlightthickness=0, bd=0, bg=bg, **kwargs)
@@ -15,21 +34,22 @@ class SystemTabs(tk.Canvas):
             ("balanced_ternary", "Троичная"),
             ("mixed", "Смешанная"),
         ]
-        # ВАЖНО: не _w / _h — они заняты внутри tk.Canvas
         self._cw = width
         self._ch = height
 
-        self.COLOR_BG = "#eef3fa"
-        self.COLOR_ACTIVE = "#b9d4f2"
-        self.COLOR_IDLE = "#eef3fa"
-        self.COLOR_TEXT_ACTIVE = "#12406e"
-        self.COLOR_TEXT_IDLE = "#6b7c93"
+        # Пудровая палитра (вариант A)
+        self.COLOR_BG = "#f7e4ec"          # фон плашки
+        self.COLOR_ACTIVE = "#e8b8ce"      # активный сегмент
+        self.COLOR_IDLE = "#f7e4ec"        # неактивный сегмент (сливается)
+        self.COLOR_TEXT_ACTIVE = "#7a3d57"
+        self.COLOR_TEXT_IDLE = "#a98298"
 
         self._build()
 
     def _build(self):
-        self.create_oval(0, 0, self._cw, self._ch,
-                         fill=self.COLOR_BG, outline="", tags="pill")
+        # фоновая плашка со скруглением
+        round_rect(self, 0, 0, self._cw, self._ch, r=self._ch / 2,
+                   fill=self.COLOR_BG, outline="", tags="pill")
 
         seg_w = self._cw / len(self.systems)
         self.segment_ids = {}
@@ -38,8 +58,10 @@ class SystemTabs(tk.Canvas):
         for i, (key, title) in enumerate(self.systems):
             x0 = i * seg_w
             x1 = x0 + seg_w
-            sid = self.create_oval(
-                x0 + 3, 3, x1 - 3, self._ch - 3,
+            # сегмент — тоже скруглённый прямоугольник
+            sid = round_rect(
+                self, x0 + 3, 3, x1 - 3, self._ch - 3,
+                r=(self._ch - 6) / 2,
                 fill=self.COLOR_IDLE, outline="", tags=("seg", key)
             )
             tid = self.create_text(
@@ -61,7 +83,7 @@ class SystemTabs(tk.Canvas):
     def _hover(self, key, on):
         if key == self.current:
             return
-        color = "#e3ecf7" if on else self.COLOR_IDLE
+        color = "#f1d5e0" if on else self.COLOR_IDLE
         self.itemconfigure(self.segment_ids[key], fill=color)
 
     def _select(self, key):
@@ -82,26 +104,26 @@ class SystemTabs(tk.Canvas):
 
 
 class OvalButton(tk.Canvas):
-    # полупрозрачная овальная кнопка
+    # кнопка с закруглёнными углами (визуально «капсула»)
 
     def __init__(self, master, text, command,
-                 width=140, height=48,
-                 bg="#b9d4f2", hover="#9cc3ec", text_color="#12406e",
-                 master_bg="#ffffff", **kwargs):
+                 width=150, height=52,
+                 bg="#e8b8ce", hover="#dba3bd", text_color="#7a3d57",
+                 master_bg="#f1ccd7", **kwargs):
         super().__init__(master, width=width, height=height,
                          highlightthickness=0, bd=0, bg=master_bg, **kwargs)
         self.command = command
         self._bg = bg
         self._hover = hover
         self._fg = text_color
-        # тоже не _w / _h
         self._cw = width
         self._ch = height
         self._build(text)
 
     def _build(self, text):
-        self.create_oval(1, 1, self._cw - 1, self._ch - 1,
-                         fill=self._bg, outline="", tags="oval")
+        round_rect(self, 1, 1, self._cw - 1, self._ch - 1,
+                   r=self._ch / 2,
+                   fill=self._bg, outline="", tags="oval")
         self.create_text(self._cw / 2, self._ch / 2, text=text,
                          fill=self._fg,
                          font=("Segoe UI Semibold", 12, "bold"),

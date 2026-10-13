@@ -11,7 +11,7 @@ class App:
         self.root = tk.Tk()
         self.root.title("Двоичные числа — Рошевских В.И., ПИ25-1")
         self.root.geometry("820x540")
-        self.root.configure(bg="#ffffff")
+        self.root.configure(bg="#f1ccd7")
 
         self.model = NumberModel(size=8)
         self.mode = "edit"
@@ -26,16 +26,17 @@ class App:
                                  weight="bold")
         tk.Label(
             self.root, text="ДВОИЧНЫЕ ЧИСЛА",
-            bg="#ffffff", fg="#12406e", font=title_font
+            bg="#f1ccd7", fg="#7a3d57", font=title_font
         ).pack(pady=(18, 0))
 
-        # общий полупрозрачный овал с выбором системы
-        self.tabs = SystemTabs(self.root, on_select=self._on_system_change)
+        # прямоугольная плашка с выбором системы
+        self.tabs = SystemTabs(self.root, on_select=self._on_system_change,
+                               bg="#f1ccd7")
         self.tabs.pack(pady=(12, 0))
 
         # регистры
         self.canvas = tk.Canvas(self.root, width=780, height=170,
-                                bg="#ffffff", highlightthickness=0)
+                                bg="#f1ccd7", highlightthickness=0)
         self.canvas.pack(pady=(10, 0))
         self.renderer = Renderer(self.canvas, self.model)
         self.renderer.draw_all()
@@ -45,7 +46,7 @@ class App:
         self.result_var = tk.StringVar(value="")
         tk.Label(
             self.root, textvariable=self.result_var,
-            bg="#ffffff", fg="#111111",
+            bg="#f1ccd7", fg="#7a3d57",
             font=tkfont.Font(family="Segoe UI", size=48, weight="bold"),
             anchor="w"
         ).pack(fill="x", padx=40, pady=(8, 0))
@@ -54,16 +55,16 @@ class App:
         self.caption_var = tk.StringVar(value="")
         tk.Label(
             self.root, textvariable=self.caption_var,
-            bg="#ffffff", fg="#666666",
+            bg="#f1ccd7", fg="#a98298",
             font=("Segoe UI", 11), anchor="w"
         ).pack(fill="x", padx=40)
 
-        # кнопка «Считать» — справа снизу, полупрозрачная овальная
+        # кнопка «Считать» — справа снизу
         self.read_btn = OvalButton(
             self.root, text="Считать", command=self._on_read_click,
             width=150, height=52,
-            bg="#b9d4f2", hover="#9cc3ec", text_color="#12406e",
-            master_bg="#ffffff"
+            bg="#e8b8ce", hover="#dba3bd", text_color="#7a3d57",
+            master_bg="#f1ccd7"
         )
         self.read_btn.place(relx=1.0, rely=1.0, x=-30, y=-30, anchor="se")
 
@@ -123,10 +124,9 @@ class App:
         self.change_btn = OvalButton(
             self.root, text="Изменить", command=self._on_change_click,
             width=150, height=52,
-            bg="#b9d4f2", hover="#9cc3ec", text_color="#12406e",
-            master_bg="#ffffff"
+            bg="#e8b8ce", hover="#dba3bd", text_color="#7a3d57",
+            master_bg="#f1ccd7"
         )
-        # чуть выше кнопки «Считать»
         self.change_btn.place(relx=1.0, rely=1.0, x=-30, y=-95, anchor="se")
 
     def _hide_change_button(self):

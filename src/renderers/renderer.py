@@ -1,6 +1,6 @@
 class Renderer:
     COLOR_BG = "#ffffff"
-    COLOR_STRIP = "#e8e8e8"
+    COLOR_STRIP = "#f1ccd7"
     COLOR_CIRCLE = "#111111"
     COLOR_DIGIT = "#ffffff"
     COLOR_WEIGHT = "#666666"
