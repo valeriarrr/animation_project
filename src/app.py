@@ -1,3 +1,5 @@
+"""Главное окно приложения «Двоичные числа»."""
+
 import tkinter as tk
 from tkinter import font as tkfont
 
@@ -7,7 +9,10 @@ from src.widgets.controls import SystemTabs, OvalButton
 
 
 class App:
+    """Собирает окно, обрабатывает клики и запускает считывание."""
+
     def __init__(self):
+        """Создать окно и собрать интерфейс."""
         self.root = tk.Tk()
         self.root.title("Двоичные числа — Рошевских В.И., ПИ25-1")
         self.root.geometry("820x540")
@@ -21,20 +26,19 @@ class App:
         self._build_ui()
 
     def _build_ui(self):
-        # заголовок капсом, красивым шрифтом
-        title_font = tkfont.Font(family="Segoe UI Semibold", size=22,
-                                 weight="bold")
+        """Создать и разместить все виджеты окна."""
+        title_font = tkfont.Font(family="Segoe UI Semibold",
+                                 size=22, weight="bold")
         tk.Label(
             self.root, text="ДВОИЧНЫЕ ЧИСЛА",
             bg="#f1ccd7", fg="#7a3d57", font=title_font
         ).pack(pady=(18, 0))
 
-        # прямоугольная плашка с выбором системы
-        self.tabs = SystemTabs(self.root, on_select=self._on_system_change,
+        self.tabs = SystemTabs(self.root,
+                               on_select=self._on_system_change,
                                bg="#f1ccd7")
         self.tabs.pack(pady=(12, 0))
 
-        # регистры
         self.canvas = tk.Canvas(self.root, width=780, height=170,
                                 bg="#f1ccd7", highlightthickness=0)
         self.canvas.pack(pady=(10, 0))
@@ -42,16 +46,15 @@ class App:
         self.renderer.draw_all()
         self.canvas.bind("<Button-1>", self._on_canvas_click)
 
-        # крупный результат
         self.result_var = tk.StringVar(value="")
         tk.Label(
             self.root, textvariable=self.result_var,
             bg="#f1ccd7", fg="#7a3d57",
-            font=tkfont.Font(family="Segoe UI", size=48, weight="bold"),
+            font=tkfont.Font(family="Segoe UI",
+                             size=48, weight="bold"),
             anchor="w"
         ).pack(fill="x", padx=40, pady=(8, 0))
 
-        # подпись
         self.caption_var = tk.StringVar(value="")
         tk.Label(
             self.root, textvariable=self.caption_var,
@@ -59,16 +62,19 @@ class App:
             font=("Segoe UI", 11), anchor="w"
         ).pack(fill="x", padx=40)
 
-        # кнопка «Считать» — справа снизу
         self.read_btn = OvalButton(
-            self.root, text="Считать", command=self._on_read_click,
+            self.root, text="Считать",
+            command=self._on_read_click,
             width=150, height=52,
-            bg="#e8b8ce", hover="#dba3bd", text_color="#7a3d57",
+            bg="#e8b8ce", hover="#dba3bd",
+            text_color="#7a3d57",
             master_bg="#f1ccd7"
         )
-        self.read_btn.place(relx=1.0, rely=1.0, x=-30, y=-30, anchor="se")
+        self.read_btn.place(relx=1.0, rely=1.0,
+                            x=-30, y=-30, anchor="se")
 
     def _on_system_change(self, system):
+        """Переключить систему счисления и обновить холст."""
         self.model.set_system(system)
         self.renderer.draw_all()
         self.result_var.set("")
@@ -77,6 +83,7 @@ class App:
         self._hide_change_button()
 
     def _on_canvas_click(self, event):
+        """Обработать клик по кружку-регистру."""
         if self.mode != "edit":
             return
         for i in range(self.model.size):
@@ -90,6 +97,7 @@ class App:
                 break
 
     def _on_read_click(self):
+        """Запустить анимацию считывания."""
         if self.mode != "edit":
             return
         self.mode = "reading"
@@ -99,10 +107,13 @@ class App:
         self._animate_reading(0)
 
     def _animate_reading(self, index):
+        """Подсветить регистр с индексом index и перейти к следующему."""
         if index >= self.model.size:
             self._finish_reading()
             return
-        color = Renderer.HIGHLIGHT_COLORS[index % len(Renderer.HIGHLIGHT_COLORS)]
+        color = Renderer.HIGHLIGHT_COLORS[
+            index % len(Renderer.HIGHLIGHT_COLORS)
+        ]
         self.renderer.highlight_register(index, color)
 
         def step():
@@ -112,33 +123,43 @@ class App:
         self._after_ids.append(self.root.after(200, step))
 
     def _finish_reading(self):
+        """Показать результат и запланировать кнопку «Изменить»."""
         value = self.model.value()
         self.result_var.set(str(value))
         self.caption_var.set(f"Новое число: {value}")
         self.mode = "done"
-        self._after_ids.append(self.root.after(3000, self._show_change_button))
+        self._after_ids.append(
+            self.root.after(3000, self._show_change_button)
+        )
 
     def _show_change_button(self):
+        """Показать овальную кнопку «Изменить»."""
         if self.change_btn is not None:
             return
         self.change_btn = OvalButton(
-            self.root, text="Изменить", command=self._on_change_click,
+            self.root, text="Изменить",
+            command=self._on_change_click,
             width=150, height=52,
-            bg="#e8b8ce", hover="#dba3bd", text_color="#7a3d57",
+            bg="#e8b8ce", hover="#dba3bd",
+            text_color="#7a3d57",
             master_bg="#f1ccd7"
         )
-        self.change_btn.place(relx=1.0, rely=1.0, x=-30, y=-95, anchor="se")
+        self.change_btn.place(relx=1.0, rely=1.0,
+                              x=-30, y=-95, anchor="se")
 
     def _hide_change_button(self):
+        """Скрыть кнопку «Изменить», если она есть."""
         if self.change_btn is not None:
             self.change_btn.destroy()
             self.change_btn = None
 
     def _on_change_click(self):
+        """Вернуть приложение в режим редактирования."""
         self._hide_change_button()
         self.result_var.set("")
         self.caption_var.set("")
         self.mode = "edit"
 
     def run(self):
+        """Запустить главный цикл окна."""
         self.root.mainloop()
